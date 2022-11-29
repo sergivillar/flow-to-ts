@@ -164,6 +164,15 @@ export const transform = {
   },
 
   VariableDeclaration(path, state) {
+    // Remove const UNKNOWN: 'UNKNOWN' = 'UNKNOWN';
+    path.node.declarations.map((declaration) => {
+      if (t.isVariableDeclarator(declaration)) {
+        if (t.isIdentifier(declaration.id)) {
+          delete declaration.id.typeAnnotation;
+        }
+      }
+    });
+
     trackComments(path.node, state);
   },
 

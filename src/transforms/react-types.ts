@@ -163,4 +163,5 @@ const QualifiedReactTypeNameMap = {
   // TODO: private types, e.g. React$ElementType, React$Node, etc.
 
   // TODO: handle ComponentType, ElementConfig, ElementProps, etc.
+  ElementProps: "ComponentProps",
 };
