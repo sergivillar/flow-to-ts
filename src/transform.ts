@@ -529,7 +529,7 @@ export const transform = {
         const tsTypeReferences = path.node.types.filter((type) =>
           t.isTSTypeReference(type)
         );
-        const hasVoid = path.node.types.legth !== tsTypeReferences;
+        const hasVoid = path.node.types.legth !== tsTypeReferences.legnth;
 
         // Only replace if more than one custom type
         if (tsTypeReferences.length > 1) {

@@ -1,1 +1,1 @@
-let obj: T | U;
+let obj: ExclusifyUnion<T | U>;
