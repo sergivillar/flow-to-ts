@@ -20,6 +20,24 @@ const stripSuffixFromImportSource = (path) => {
 };
 
 const transformFunction = (path) => {
+  // Replace ': React.Node' to : 'JSX.Element'
+  if (path.node.returnType) {
+    const returnType = path.node.returnType;
+
+    if (t.isTypeAnnotation(returnType)) {
+      if (t.isGenericTypeAnnotation(returnType.typeAnnotation)) {
+        if (t.isQualifiedTypeIdentifier(returnType.typeAnnotation.id)) {
+          const { qualification, id } = returnType.typeAnnotation.id;
+          // @ts-ignore
+          if (qualification.name === "React" && id.name === "Node") {
+            path.node.returnType.typeAnnotation = t.tsTypeReference(
+              t.tsQualifiedName(t.identifier("JSX"), t.identifier("Element"))
+            );
+          }
+        }
+      }
+    }
+  }
   if (path.node.predicate) {
     console.warn(`removing %checks at ${locToString(path.node.predicate.loc)}`);
     delete path.node.predicate;
@@ -418,7 +436,6 @@ export const transform = {
         path.replaceWith(replacement);
         return;
       }
-
       replacement = reactTypes.GenericTypeAnnotation.exit(path, state);
       if (replacement) {
         path.replaceWith(replacement);

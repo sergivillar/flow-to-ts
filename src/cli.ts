@@ -2,6 +2,7 @@ import { Command } from "commander";
 import fs from "fs";
 import glob from "glob";
 import prettier from "prettier";
+import prettierConfig from "@telefonica/prettier-config";
 
 import { convert } from "./convert";
 import { detectJsx } from "./detect-jsx";
@@ -73,9 +74,7 @@ export const cli = (argv) => {
 
   if (options.prettier) {
     try {
-      const prettierConfig = prettier.resolveConfig.sync(process.cwd());
       if (prettierConfig) {
-        // @ts-ignore
         options.prettierOptions = prettierConfig;
       }
     } catch (e) {
@@ -98,7 +97,6 @@ export const cli = (argv) => {
 
     try {
       const outCode = convert(inCode, options);
-
       if (program.write) {
         const extension = detectJsx(inCode) ? ".tsx" : ".ts";
         const outFile = file.replace(/\.jsx?$/, extension);

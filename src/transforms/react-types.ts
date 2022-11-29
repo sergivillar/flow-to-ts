@@ -12,7 +12,9 @@ export const GenericTypeAnnotation = {
           t.identifier(UnqualifiedReactTypeNameMap[typeName.name])
         ),
         // TypeScript doesn't support empty type param lists
-        typeParameters && typeParameters.params.length > 0 ? typeParameters : null
+        typeParameters && typeParameters.params.length > 0
+          ? typeParameters
+          : null
       );
     }
 
@@ -107,7 +109,7 @@ export const GenericTypeAnnotation = {
         );
       }
     }
-  }
+  },
 };
 
 // Mapping between React types for Flow and those for TypeScript.
@@ -144,7 +146,7 @@ export const QualifiedTypeIdentifier = {
         t.identifier(QualifiedReactTypeNameMap[right.name])
       );
     }
-  }
+  },
 };
 
 // Only types with different names are included.
