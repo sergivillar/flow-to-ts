@@ -47,7 +47,6 @@ const transformFunction = (path) => {
           // @ts-ignore
           if (qualification.name === "React" && id.name === "Node") {
             if (returnStatement.length === 0 || isReturnNull) {
-              console.log("ADD");
               path.node.returnType.typeAnnotation = t.tsUnionType([
                 t.tsTypeReference(
                   t.tsQualifiedName(

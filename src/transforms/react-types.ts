@@ -146,6 +146,11 @@ export const QualifiedTypeIdentifier = {
         t.identifier(QualifiedReactTypeNameMap[right.name])
       );
     }
+
+    // From React.ChildrenArray<T> to Array<T>
+    if (left.name === "React" && right.name === "ChildrenArray") {
+      return t.identifier("Array");
+    }
   },
 };
 
