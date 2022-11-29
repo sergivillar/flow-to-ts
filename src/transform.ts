@@ -27,11 +27,17 @@ const transformFunction = (path) => {
 
     // Check if arrow has return type or if the return type if null
     const returnStatement =
-      body?.filter((item) => t.isReturnStatement(item)) ?? [];
-    const isReturnNull = returnStatement.some((item) =>
-      t.isNullLiteral(item.argument)
-    );
-
+      body && Array.isArray(body)
+        ? body.filter((item) => t.isReturnStatement(item))
+        : [];
+    const isReturnNull =
+      returnStatement.some((item) => t.isNullLiteral(item.argument)) ||
+      returnStatement.some(
+        (item) =>
+          t.isConditionalExpression(item.argument) &&
+          (t.isNullLiteral(item.argument.consequent) ||
+            t.isNullLiteral(item.argument.alternate))
+      );
     const returnType = path.node.returnType;
 
     if (t.isTypeAnnotation(returnType)) {
@@ -40,7 +46,8 @@ const transformFunction = (path) => {
           const { qualification, id } = returnType.typeAnnotation.id;
           // @ts-ignore
           if (qualification.name === "React" && id.name === "Node") {
-            if (returnStatement.legth === 0 || isReturnNull) {
+            if (returnStatement.length === 0 || isReturnNull) {
+              console.log("ADD");
               path.node.returnType.typeAnnotation = t.tsUnionType([
                 t.tsTypeReference(
                   t.tsQualifiedName(
