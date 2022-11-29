@@ -168,8 +168,14 @@ export const transform = {
     path.node.declarations.map((declaration) => {
       if (t.isVariableDeclarator(declaration)) {
         if (t.isIdentifier(declaration.id)) {
-          if (t.isStringLiteralTypeAnnotation(declaration.id.typeAnnotation)) {
-            delete declaration.id.typeAnnotation;
+          if (t.isTypeAnnotation(declaration.id.typeAnnotation)) {
+            if (
+              t.isStringLiteralTypeAnnotation(
+                declaration.id.typeAnnotation.typeAnnotation
+              )
+            ) {
+              delete declaration.id.typeAnnotation;
+            }
           }
         }
       }
@@ -512,6 +518,46 @@ export const transform = {
     exit(path) {
       const { types } = path.node;
       path.replaceWith(t.tsUnionType(types));
+
+      // Add ExclusifyUnion if custom types
+
+      if (
+        path.node.types.every(
+          (type) => t.isTSTypeReference(type) || t.isTSVoidKeyword(type)
+        )
+      ) {
+        const tsTypeReferences = path.node.types.filter((type) =>
+          t.isTSTypeReference(type)
+        );
+        const hasVoid = path.node.types.legth !== tsTypeReferences;
+
+        // Only replace if more than one custom type
+        if (tsTypeReferences.length > 1) {
+          if (!hasVoid) {
+            path.replaceWith(
+              t.tsTypeReference(
+                t.identifier("ExclusifyUnion"),
+                t.tsTypeParameterInstantiation([
+                  t.tsUnionType(tsTypeReferences),
+                ])
+              )
+            );
+          } else {
+            // If void include in union, split like this 'ExclusifyUnion<Patata | Pera> | void'
+            path.replaceWith(
+              t.tsUnionType([
+                t.tsTypeReference(
+                  t.identifier("ExclusifyUnion"),
+                  t.tsTypeParameterInstantiation([
+                    t.tsUnionType(tsTypeReferences),
+                  ])
+                ),
+                t.tsVoidKeyword(),
+              ])
+            );
+          }
+        }
+      }
     },
   },
   TypeofTypeAnnotation: {

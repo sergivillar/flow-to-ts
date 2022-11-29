@@ -106,7 +106,7 @@ export const cli = (argv) => {
     try {
       const outCode = convert(inCode, options);
       if (program.write) {
-        const extension = detectJsx(inCode) ? ".tsx" : ".ts";
+        const extension = ".tsx";
         const outFile = file.replace(/\.jsx?$/, extension);
         fs.writeFileSync(outFile, outCode);
       } else {
