@@ -1,4 +1,4 @@
-const c = () => {
+const c = (): void => {
   /**
    * foo
    */

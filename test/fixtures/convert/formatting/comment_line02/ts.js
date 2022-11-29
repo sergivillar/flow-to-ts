@@ -1,4 +1,4 @@
-const c = () => {
+const c = (): void => {
   // foo
   const a = 5;
   // bar

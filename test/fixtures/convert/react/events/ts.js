@@ -1,7 +1,7 @@
-const handler = (e: React.SyntheticEvent) => {};
+const handler = (e: React.SyntheticEvent): void => {};
 
-const animationHandler = (e: React.AnimationEvent) => {};
+const animationHandler = (e: React.AnimationEvent): void => {};
 
-const clipboardHandler = (e: React.ClipboardEvent) => {};
+const clipboardHandler = (e: React.ClipboardEvent): void => {};
 
-const inputHandler = (e: React.SyntheticEvent) => {};
+const inputHandler = (e: React.SyntheticEvent): void => {};

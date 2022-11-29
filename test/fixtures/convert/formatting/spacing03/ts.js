@@ -1,4 +1,4 @@
-const a = () => {
+const a = (): void => {
   // first leading comment
   // second leading comment
   const b = 5;

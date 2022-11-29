@@ -7,6 +7,7 @@ import * as objectType from "./transforms/object-type";
 import * as utilityTypes from "./transforms/utility-types";
 
 import { trackComments, partition, returning } from "./util";
+import { IfStatement } from "../babel/packages/babel-generator/src/generators";
 
 const locToString = (loc) =>
   `${loc.start.line}:${loc.start.column}-${loc.end.line}:${loc.end.column}`;
@@ -20,8 +21,17 @@ const stripSuffixFromImportSource = (path) => {
 };
 
 const transformFunction = (path) => {
-  // Replace ': React.Node' to : 'JSX.Element'
+  // Replace ': React.Node' to ': JSX.Element'
   if (path.node.returnType) {
+    const body = path.node.body?.body;
+
+    // Check if arrow has return type or if the return type if null
+    const returnStatement =
+      body?.filter((item) => t.isReturnStatement(item)) ?? [];
+    const isReturnNull = returnStatement.some((item) =>
+      t.isNullLiteral(item.argument)
+    );
+
     const returnType = path.node.returnType;
 
     if (t.isTypeAnnotation(returnType)) {
@@ -30,14 +40,37 @@ const transformFunction = (path) => {
           const { qualification, id } = returnType.typeAnnotation.id;
           // @ts-ignore
           if (qualification.name === "React" && id.name === "Node") {
-            path.node.returnType.typeAnnotation = t.tsTypeReference(
-              t.tsQualifiedName(t.identifier("JSX"), t.identifier("Element"))
-            );
+            if (returnStatement.legth === 0 || isReturnNull) {
+              path.node.returnType.typeAnnotation = t.tsUnionType([
+                t.tsTypeReference(
+                  t.tsQualifiedName(
+                    t.identifier("JSX"),
+                    t.identifier("Element")
+                  )
+                ),
+                t.tsNullKeyword(),
+              ]);
+            } else {
+              path.node.returnType.typeAnnotation = t.tsTypeReference(
+                t.tsQualifiedName(t.identifier("JSX"), t.identifier("Element"))
+              );
+            }
           }
         }
       }
     }
+  } else {
+    // if no return type defined in arrow function, add ': void'
+    if (
+      t.isVariableDeclarator(path.parent) &&
+      t.isBlockStatement(path.node.body) &&
+      !path.node.async &&
+      !path.node?.body?.body.some((item) => t.isReturnStatement(item))
+    ) {
+      path.node.returnType = t.tsTypeAnnotation(t.tsVoidKeyword());
+    }
   }
+
   if (path.node.predicate) {
     console.warn(`removing %checks at ${locToString(path.node.predicate.loc)}`);
     delete path.node.predicate;
