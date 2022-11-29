@@ -168,7 +168,9 @@ export const transform = {
     path.node.declarations.map((declaration) => {
       if (t.isVariableDeclarator(declaration)) {
         if (t.isIdentifier(declaration.id)) {
-          delete declaration.id.typeAnnotation;
+          if (t.isStringLiteralTypeAnnotation(declaration.id.typeAnnotation)) {
+            delete declaration.id.typeAnnotation;
+          }
         }
       }
     });

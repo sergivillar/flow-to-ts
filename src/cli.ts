@@ -2,7 +2,7 @@ import { Command } from "commander";
 import fs from "fs";
 import glob from "glob";
 import prettier from "prettier";
-import prettierConfig from "@telefonica/prettier-config";
+import prettierConfigTelefonica from "@telefonica/prettier-config";
 
 import { convert } from "./convert";
 import { detectJsx } from "./detect-jsx";
@@ -74,6 +74,14 @@ export const cli = (argv) => {
 
   if (options.prettier) {
     try {
+      let prettierConfig;
+
+      if (process.env.NODE_ENV === "test") {
+        prettierConfig = prettier.resolveConfig.sync(process.cwd());
+      } else {
+        prettierConfig = prettierConfigTelefonica;
+      }
+
       if (prettierConfig) {
         options.prettierOptions = prettierConfig;
       }
